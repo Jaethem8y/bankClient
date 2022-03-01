@@ -1,0 +1,13 @@
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  .left {
+    padding-left: 2em;
+    padding-top: 1em;
+  }
+  .right {
+    padding-right: 2em;
+    padding-top: 1em;
+  }
+}

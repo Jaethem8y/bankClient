@@ -1,0 +1,14 @@
+.tableDescription {
+  display: flex;
+  justify-content: space-between;
+}
+.table {
+  height: 300px;
+  overflow: scroll;
+}
+.tbody {
+  display: block;
+  overflow: auto;
+  height: 200px;
+  width: 100%;
+}
