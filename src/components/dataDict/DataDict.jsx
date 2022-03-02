@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useRecoilState } from "recoil";
+import { detailTable } from "../../state/detailTable";
+
 import { Table } from "react-bootstrap";
 import styles from "./dataDict.module.scss";
 
@@ -8,7 +11,7 @@ export default function DataDict() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [start, setStart] = useState(30);
-  const [detailTable, setDetailTable] = useState(null);
+  const [detailTables, setDetailTables] = useRecoilState(detailTable);
   useEffect(() => {
     const fetchDataDict = async () => {
       try {
@@ -35,9 +38,9 @@ export default function DataDict() {
     setDataDict((prev) => [...prev, ...data.data]);
   };
 
-  const getDetailTable = (e) => {
-    setDetailTable(e.target.innerText);
-    console.log(detailTable);
+  const getDetailTables = (e) => {
+    setDetailTables(e.target.innerText);
+    console.log(detailTables);
   };
 
   if (loading)
@@ -82,7 +85,7 @@ export default function DataDict() {
                     if (index === 0) {
                       return (
                         <td style={{ padding: "0.5em" }}>
-                          <p onClick={getDetailTable}>{el[key]}</p>
+                          <p onClick={getDetailTables}>{el[key]}</p>
                         </td>
                       );
                     }
@@ -102,6 +105,7 @@ export default function DataDict() {
           <b>click this to load 30 more</b>
         </p>
       </div>
+      <h1>{detailTables}</h1>
     </div>
   );
 }
