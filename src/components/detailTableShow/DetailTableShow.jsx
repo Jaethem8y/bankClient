@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { Table, Button } from "react-bootstrap";
 import { detailTable } from "../../state/detailTable";
+import { CSVLink, CSVDownload } from "react-csv";
 
 import styles from "./detailTableShow.module.scss";
 
@@ -13,6 +14,7 @@ export default function DetailTableShow({ table }) {
   const [start, setStart] = useState(30);
   const [targetTable, setTargetTable] = useState(null);
   const [detailTables, setDetailTables] = useRecoilState(detailTable);
+  const [downloadTable, setDownloadTable] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,6 +43,10 @@ export default function DetailTableShow({ table }) {
     setStart((prev) => prev + 30);
     setTargetTable((prev) => [...prev, ...data.data]);
     setTableRowNum(targetTable.length);
+    setDownloadTable(
+      ...downloadTable,
+      targetTable.map((el) => Object.values(el))
+    );
   };
 
   const removeTable = () => {
@@ -63,6 +69,7 @@ export default function DetailTableShow({ table }) {
         <div style={{ margin: " 1em" }}>
           <span>table total rows: {length} </span>
           <span> table current rows : {tableRowNum}</span>
+          <CSVLink data={targetTable}>CSV</CSVLink>
           <Button
             style={{ marginLeft: "1em" }}
             variant="danger"
