@@ -4,6 +4,7 @@ import { useRecoilState } from "recoil";
 import { detailTable } from "../../state/detailTable";
 import { Table } from "react-bootstrap";
 import styles from "./dataDict.module.scss";
+import { requestUrl } from "../../state/url";
 
 export default function DataDict() {
   const [dataDict, setDataDict] = useState(null);
@@ -14,9 +15,7 @@ export default function DataDict() {
   useEffect(() => {
     const fetchDataDict = async () => {
       try {
-        const data = await axios.get(
-          "http://13.58.245.200:3002/data_dict?end=30"
-        );
+        const data = await axios.get(requestUrl + "/data_dict?end=30");
         setDataDict(data.data);
       } catch (e) {
         setError(e);
@@ -28,10 +27,7 @@ export default function DataDict() {
 
   const loadMore = async () => {
     const data = await axios.get(
-      "http://13.58.245.200:3002/data_dict?start=" +
-        start +
-        "&end=" +
-        (start + 30)
+      requestUrl + "/data_dict?start=" + start + "&end=" + (start + 30)
     );
     setStart((prev) => prev + 30);
     setDataDict((prev) => [...prev, ...data.data]);

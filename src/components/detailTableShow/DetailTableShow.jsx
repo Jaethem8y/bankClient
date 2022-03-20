@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { Table, Button } from "react-bootstrap";
 import { detailTable } from "../../state/detailTable";
-import { CSVLink, CSVDownload } from "react-csv";
+import { CSVLink } from "react-csv";
 
 import styles from "./detailTableShow.module.scss";
 
 import axios from "axios";
+
+import { requestUrl } from "../../state/url";
 
 export default function DetailTableShow({ table }) {
   const [length, setLength] = useState(0);
@@ -18,12 +20,8 @@ export default function DetailTableShow({ table }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const lengthRequest = await axios(
-        "http://13.58.245.200:3002/length/" + table
-      );
-      const target = await axios(
-        "http://13.58.245.200:3002/" + table + "?end=30"
-      );
+      const lengthRequest = await axios(requestUrl + "/length/" + table);
+      const target = await axios(requestUrl + "/" + table + "?end=30");
       setLength(lengthRequest.data);
       setTargetTable(target.data);
       setTableRowNum(target.data.length);
@@ -33,12 +31,7 @@ export default function DetailTableShow({ table }) {
 
   const loadMore = async () => {
     const data = await axios.get(
-      "http://13.58.245.200:3002/" +
-        table +
-        "?start=" +
-        start +
-        "&end=" +
-        (start + 30)
+      requestUrl + "/" + table + "?start=" + start + "&end=" + (start + 30)
     );
     setStart((prev) => prev + 30);
     setTargetTable((prev) => [...prev, ...data.data]);
