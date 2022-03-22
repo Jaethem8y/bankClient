@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRecoilState } from "recoil";
 import { Table, Button } from "react-bootstrap";
 import { detailTable } from "../../state/detailTable";
@@ -15,13 +15,23 @@ export default function DetailTableShow({ table }) {
   const [tableRowNum, setTableRowNum] = useState(0);
   const [start, setStart] = useState(30);
   const [targetTable, setTargetTable] = useState(null);
-  const [detailTables, setDetailTables] = useRecoilState(detailTable);
   const [downloadTable, setDownloadTable] = useState([]);
+  const [bankId, setBankId] = useState("");
+  const [year, setYear] = useState("");
+  const [quarter, setQuarter] = useState("");
+  const [score, setScore] = useState("");
+
+  const [detailTables, setDetailTables] = useRecoilState(detailTable);
+
+  const bankIdRef = useRef(null);
+  const yearRef = useRef(null);
+  const quarterRef = useRef(null);
+  const scoreRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
       const lengthRequest = await axios(requestUrl + "/length/" + table);
-      const target = await axios(requestUrl + "/" + table + "?end=30");
+      const target = await axios(requestUrl + "/" + table + "?end=1000");
       setLength(lengthRequest.data);
       setTargetTable(target.data);
       setTableRowNum(target.data.length);
@@ -31,11 +41,28 @@ export default function DetailTableShow({ table }) {
 
   const loadMore = async () => {
     const data = await axios.get(
-      requestUrl + "/" + table + "?start=" + start + "&end=" + (start + 30)
+      requestUrl +
+        "/" +
+        table +
+        "?start=" +
+        start +
+        "&end=" +
+        (start + 1000) +
+        "&bank_id=" +
+        bankId +
+        "&year=" +
+        year +
+        "&quarter=" +
+        quarter +
+        "&score=" +
+        score
     );
-    setStart((prev) => prev + 30);
+    setStart((prev) => prev + 1000);
     setTargetTable((prev) => [...prev, ...data.data]);
     setTableRowNum(targetTable.length);
+    if (tableRowNum > length) {
+      setTableRowNum(length);
+    }
     setDownloadTable(
       ...downloadTable,
       targetTable.map((el) => Object.values(el))
@@ -46,6 +73,47 @@ export default function DetailTableShow({ table }) {
     setDetailTables(detailTables.filter((el) => el !== table));
     console.log(detailTables);
   };
+
+  const onClick = async () => {
+    setBankId(bankIdRef.current.value);
+    setYear(yearRef.current.value);
+    setQuarter(quarterRef.current.value);
+    setScore(scoreRef.current.value);
+    console.log(
+      requestUrl +
+        "/" +
+        table +
+        "?end=" +
+        1000 +
+        "&bank_id=" +
+        bankId +
+        "&year=" +
+        year +
+        "&quarter=" +
+        quarter +
+        "&score=" +
+        score
+    );
+    const data = await axios.get(
+      requestUrl +
+        "/" +
+        table +
+        "?end=" +
+        1000 +
+        "&bank_id=" +
+        bankId +
+        "&year=" +
+        year +
+        "&quarter=" +
+        quarter +
+        "&score=" +
+        score
+    );
+    setStart(1000);
+    setTargetTable(data.data);
+    setTableRowNum(targetTable.length);
+  };
+
   if (!targetTable) {
     return <></>;
   }
@@ -71,6 +139,13 @@ export default function DetailTableShow({ table }) {
             Remove
           </Button>
         </div>
+      </div>
+      <div>
+        <input type="text" placeholder="bank_id" ref={bankIdRef} />
+        <input type="text" placeholder="year" ref={yearRef} />
+        <input type="text" placeholder="quarter" ref={quarterRef} />
+        <input type="text" placeholder={table} ref={scoreRef} />
+        <button onClick={onClick}>Search</button>
       </div>
       <div className={styles.table}>
         <Table striped bordered hover style={{ margin: "0", padding: "1em" }}>
@@ -105,7 +180,7 @@ export default function DetailTableShow({ table }) {
           </tbody>
         </Table>
         <p onClick={loadMore} style={{ textAlign: "center" }}>
-          <b>click this to load 30 more</b>
+          <b>click this to load more</b>
         </p>
       </div>
     </>

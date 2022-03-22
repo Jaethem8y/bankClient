@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useRecoilState } from "recoil";
 import { detailTable } from "../../state/detailTable";
@@ -10,12 +10,17 @@ export default function DataDict() {
   const [dataDict, setDataDict] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [start, setStart] = useState(30);
+  const [itemCode, setItemCode] = useState("");
+  const [meaning, setMeaning] = useState("");
   const [detailTables, setDetailTables] = useRecoilState(detailTable);
+
+  const itemCodeRef = useRef(null);
+  const meaningRef = useRef(null);
+
   useEffect(() => {
     const fetchDataDict = async () => {
       try {
-        const data = await axios.get(requestUrl + "/data_dict?end=30");
+        const data = await axios.get(requestUrl + "/data_dict");
         setDataDict(data.data);
       } catch (e) {
         setError(e);
@@ -25,16 +30,31 @@ export default function DataDict() {
     fetchDataDict();
   }, []);
 
-  const loadMore = async () => {
-    const data = await axios.get(
-      requestUrl + "/data_dict?start=" + start + "&end=" + (start + 30)
-    );
-    setStart((prev) => prev + 30);
-    setDataDict((prev) => [...prev, ...data.data]);
+  const getDetailTables = (e) => {
+    if (!detailTables.includes(e.target.innerText)) {
+      setDetailTables([...detailTables, e.target.innerText]);
+    }
+    console.log(detailTables);
   };
 
-  const getDetailTables = (e) => {
-    setDetailTables([...detailTables, e.target.innerText]);
+  const onClick = () => {
+    // console.log(itemCodeRef.current.value);
+    // console.log(meaningRef.current.value);
+    setItemCode(itemCodeRef.current.value);
+    setMeaning(meaningRef.current.value);
+    const fetchDataDict = async () => {
+      try {
+        const data = await axios.get(
+          requestUrl +
+            "/data_dict?item_code=" +
+            itemCode +
+            "&meaning=" +
+            meaning
+        );
+        setDataDict(data.data);
+      } catch (e) {}
+    };
+    fetchDataDict();
   };
 
   if (loading)
@@ -54,12 +74,15 @@ export default function DataDict() {
       </div>
     );
   if (!dataDict) return null;
-
   return (
     <div>
       <div className={styles.tableDescription}>
         <h2>data_dict table</h2>
-        <h2>current # of rows: {dataDict.length}</h2>
+        <div>
+          <input type="text" placeholder="item_code" ref={itemCodeRef} />
+          <input type="text" placeholder="meaning" ref={meaningRef} />
+          <button onClick={onClick}>Search</button>
+        </div>
       </div>
       <div className={styles.table}>
         <Table striped bordered hover style={{ margin: "0", padding: "1em" }}>
@@ -68,7 +91,6 @@ export default function DataDict() {
               {Object.keys(dataDict[0]).map((key) => (
                 <th key={key}>{key}</th>
               ))}
-              <th>checkbox</th>
             </tr>
           </thead>
           <tbody className={styles.scrollTable}>
@@ -89,15 +111,11 @@ export default function DataDict() {
                       </td>
                     );
                   })}
-                  <td key={index}> checkbox </td>
                 </tr>
               );
             })}
           </tbody>
         </Table>
-        <p onClick={loadMore} style={{ textAlign: "center" }}>
-          <b>click this to load 30 more</b>
-        </p>
       </div>
     </div>
   );
