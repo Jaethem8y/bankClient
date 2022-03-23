@@ -3,7 +3,7 @@ export default function Footer() {
     <div>
       <p style={{ textAlign: "center" }}>
         <b>
-          Contact if unexpected error happen - Jaehyeok Choi 2022 -
+          Contact if unexpected error happen @ Jaehyeok Choi -
           jaehyeok.choi@drake.edu
         </b>{" "}
       </p>
